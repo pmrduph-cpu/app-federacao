@@ -294,7 +294,7 @@ details.multi .opts{max-height:260px;overflow:auto;padding:4px 11px 8px;border-t
 <meta name="apple-mobile-web-app-title" content="UPHs">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
-<style>body .login{min-height:100vh;min-height:100dvh}body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top);background:var(--pri);z-index:100;pointer-events:none}header.top{padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}nav.bot{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}body .login{padding-top:calc(28px + env(safe-area-inset-top));padding-bottom:calc(40px + env(safe-area-inset-bottom))}@media (min-width:700px){body .login:not(.novo){padding-top:calc(56px + env(safe-area-inset-top))}}.modal{padding-top:env(safe-area-inset-top)}.sheet{max-height:calc(92vh - env(safe-area-inset-top));padding-bottom:calc(24px + env(safe-area-inset-bottom))}.doc-bar{padding-top:calc(10px + env(safe-area-inset-top))}#toast{bottom:calc(80px + env(safe-area-inset-bottom))}#syncInd{display:inline-block;width:8px;height:8px;border-radius:50%;background:#7bd389;margin-left:6px;vertical-align:middle;transition:background .2s}#syncInd.on{background:#f2c14e;animation:pulsa 1s infinite}@keyframes pulsa{50%{opacity:.35}}</style>
+<style>body .login{min-height:100vh;min-height:100dvh}body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top);background:var(--pri);z-index:100;pointer-events:none}header.top{padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}nav.bot{padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}body .login{padding-top:calc(28px + env(safe-area-inset-top));padding-bottom:calc(40px + env(safe-area-inset-bottom))}@media (min-width:700px){body .login:not(.novo){padding-top:calc(56px + env(safe-area-inset-top))}}.modal{padding-top:env(safe-area-inset-top)}.sheet{max-height:calc(92vh - env(safe-area-inset-top));padding-bottom:calc(24px + env(safe-area-inset-bottom))}.doc-bar{padding-top:calc(10px + env(safe-area-inset-top))}#toast{bottom:calc(80px + env(safe-area-inset-bottom))}.mmap{position:relative;overflow:hidden;height:440px;background:#e5eae3;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}.mmap.sm{height:260px}@media(max-width:699px){.mmap{height:360px}}.mm-t,.mm-m{position:absolute;inset:0}.mm-i{position:absolute;left:0;top:0;width:256px;height:256px;pointer-events:none;max-width:none}.mm-k{position:absolute;left:0;top:0;cursor:pointer;z-index:1}.mm-pin{position:absolute;left:-15px;top:-40px}.mm-pin.sel{z-index:2}.mm-pin.sel svg{transform:scale(1.25);transform-origin:50% 100%;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45))}.mm-k.arr{cursor:move}.mm-b{position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:4px;z-index:3}.mm-b button{width:36px;height:36px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:20px;line-height:1;cursor:pointer;color:#1d2733}.mm-a{position:absolute;right:0;bottom:0;background:rgba(255,255,255,.85);font-size:11px;padding:1px 6px;z-index:3;color:#333}.mm-a a{color:#333}#syncInd{display:inline-block;width:8px;height:8px;border-radius:50%;background:#7bd389;margin-left:6px;vertical-align:middle;transition:background .2s}#syncInd.on{background:#f2c14e;animation:pulsa 1s infinite}@keyframes pulsa{50%{opacity:.35}}</style>
 </head>
 <body>
 <div id="app"></div>
@@ -1353,7 +1353,7 @@ function locSvg(u){const W=600,H=300;const has=u.lat!=null;const c=has?[u.lat,u.
 function locEditor(u,ed){const has=u.lat!=null;const st=u.locConf?`<span class="badge ok">confirmada em ${br(u.locEm)}</span>`:has?'<span class="badge warn">aproximada: confirme</span>':'<span class="badge bad">sem localização</span>';
  return `<div class="card" style="background:#f6f8f4;margin-top:4px"><div class="between"><h3 style="margin:0">Localização no mapa</h3>${st}</div><div style="margin-top:8px" class="mapwrap">${locSvg(u)}</div>
  ${ed?`<div class="row" style="margin-top:8px"><button type="button" class="btn sm" data-a="geoBuscar" data-id="${u.id}">Buscar pelo endereço</button><button type="button" class="btn sm" data-a="geoGps" data-id="${u.id}">Usar minha localização</button>${has&&!u.locConf?`<button type="button" class="btn sm ok" data-a="geoConfirmar" data-id="${u.id}">Confirmar localização</button>`:''}</div>
- <p class="hint" style="margin:6px 0 0">Arraste o alfinete (ou toque no ponto certo) até a entrada da igreja e confirme. A forma mais precisa é tocar em "Usar minha localização" estando na igreja. A busca usa o OpenStreetMap (gratuito).</p>`:''}</div>`}
+ <p class="hint" style="margin:6px 0 0">Arraste o alfinete (ou toque no ponto certo do mapa) até a entrada da igreja e confirme. A forma mais precisa é tocar em "Usar minha localização" estando na igreja. A busca usa o OpenStreetMap (gratuito).</p>`:''}</div>`}
 
 const mapsDest=t=>`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(t)}`;
 const podeSociosMapa=()=>{const s=meS();return s&&can('seeSensitive',s.uphId)};
@@ -1388,8 +1388,8 @@ function mapaView(){const L=ctx.mapCam=ctx.mapCam||{igr:1,cong:1,atv:1,soc:0,afa
  const cidades=[...new Set(uphsAtivas().map(u=>u.cidade))].sort();
  return `<div class="row" style="margin-bottom:10px"><label style="font-size:13px;font-weight:600;color:#3b4552">Enquadrar</label><select data-c="mapCidade" style="width:auto"><option value="">Todas as cidades</option>${cidades.map(c=>`<option ${ctx.mapCidade===c?'selected':''}>${esc(c)}</option>`).join('')}</select></div>
  <div class="chips">${chip('igr','Igrejas','#0f5132')}${chip('cong','Sede do congresso','#b5832a')}${chip('atv','Atividades (60 dias)','#2b6cb0')}</div>
- <div class="cols wide"><div><div class="card mapcard"><div class="mapwrap">${mapaSvg(pts)}<div class="mapbtns"><button class="btn sm" data-a="mapZoom" data-id="1" aria-label="Aproximar">+</button><button class="btn sm" data-a="mapZoom" data-id="-1" aria-label="Afastar">−</button><button class="btn sm" data-a="mapZoom" data-id="0" aria-label="Centralizar">⤢</button></div></div>
- <p class="hint" style="margin:8px 0 0">Mapa esquemático com a posição das igrejas. Toque num marcador para ver detalhes e traçar a rota no Google Maps.</p></div></div>
+ <div class="cols wide"><div><div class="card mapcard"><div class="mapwrap">${mapaSvg(pts)}</div>
+ <p class="hint" style="margin:8px 0 0">Arraste para mover e use + e − (ou dois dedos) para aproximar. Toque num marcador para ver detalhes e traçar a rota no Google Maps.</p></div></div>
  <div>${card||'<div class="card empty">Toque num marcador do mapa.</div>'}
  ${ps?(()=>{const f=ctx.visFiltro||'afast';const me_=meS();let lista=sociosDe(me_.uphId).filter(p=>p.id!==me_.id).map(p=>({p,r:participacao(p.id)}));if(f==='afast')lista=lista.filter(x=>x.r.afastado);lista.sort((a,b)=>a.r.pct-b.r.pct||a.p.nome.localeCompare(b.p.nome));
  return `<div class="card"><h2>Rota de visitas</h2>${rota.length?`<ol class="rota">${rota.map((p,i)=>`<li><span><b class="nr">${i+1}</b>${esc(p.nome.split(' ').slice(0,2).join(' '))}</span><button class="btn sm" data-a="rotaToggle" data-id="${p.id}">tirar</button></li>`).join('')}</ol><div class="row"><a class="btn ok" target="_blank" rel="noopener" href="${rotaUrl}">Abrir rota no Google Maps</a><button class="btn sm" data-a="rotaLimpar">Limpar</button></div><p class="hint">Saída da igreja; até 9 paradas, na ordem da lista.</p>`:'<p class="sub" style="font-size:13px;margin:0">Escolha abaixo os irmãos a visitar. Eles aparecem no mapa, numerados.</p>'}</div>
@@ -1731,7 +1731,8 @@ async function sbFetch(path,{method='GET',body,headers={},raw=false,auth=true}={
  if(!r.ok){const m=j&&(j.message||j.msg||j.error_description||j.error)||tx||r.statusText;throw new SbErr(m,r.status)}
  return j;
 }
-function guardarSessao(s){SESS=s?{access_token:s.access_token,refresh_token:s.refresh_token,expires_at:s.expires_at||Math.floor(Date.now()/1000)+(+s.expires_in||3600),user:s.user||SESS&&SESS.user}:null;try{s?localStorage.setItem(SESS_KEY,JSON.stringify(SESS)):localStorage.removeItem(SESS_KEY)}catch(e){}}
+function userDoToken(t){try{const p=JSON.parse(decodeURIComponent(escape(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')))));return {id:p.sub,email:p.email}}catch(e){return null}}
+function guardarSessao(s){SESS=s?{access_token:s.access_token,refresh_token:s.refresh_token,expires_at:s.expires_at||Math.floor(Date.now()/1000)+(+s.expires_in||3600),user:s.user||userDoToken(s.access_token)||SESS&&SESS.user}:null;try{s?localStorage.setItem(SESS_KEY,JSON.stringify(SESS)):localStorage.removeItem(SESS_KEY)}catch(e){}}
 let _refr=null;
 async function refrescarSessao(forcar){
  if(!SESS||!SESS.refresh_token)return;
@@ -2110,6 +2111,85 @@ async function carregarFedPublica(){try{const r=await sbFetch('/rest/v1/federaca
  const lI=f.logo_ipb?await logoDataUrl(f.logo_ipb):null,lU=f.logo_uph?await logoDataUrl(f.logo_uph):null;
  const antes=JSON.stringify(S.fed);Object.assign(S.fed,{nome:f.nome,sigla:f.sigla,sinodal:f.sinodal,presbiterio:f.presbiterio,cidade:f.cidade,uf:f.uf,logoIpb:lI,logoUph:lU});guardarFedCache();
  if(SESS||JSON.stringify(S.fed)===antes)return;const fm=document.getElementById('fLoginEmail');const em=fm?fm.em.value:'',pw=fm?fm.pw.value:'';render();const f2=document.getElementById('fLoginEmail');if(f2){f2.em.value=em;f2.pw.value=pw}}catch(e){}}
+/* ============ MAPA REAL (OpenStreetMap) — componente próprio, sem bibliotecas ============ */
+const TILE_URL='https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+const PI=Math.PI;
+const proj=(lat,lng,z)=>{const s=256*2**z;const r=lat*PI/180;return [(lng+180)/360*s,(1-Math.log(Math.tan(r)+1/Math.cos(r))/PI)/2*s]};
+const unproj=(x,y,z)=>{const s=256*2**z;const n=PI-2*PI*y/s;return [+(180/PI*Math.atan(.5*(Math.exp(n)-Math.exp(-n)))).toFixed(6),+(x/s*360-180).toFixed(6)]};
+class MiniMapa{
+ constructor(el,o){this.el=el;this.o=o;this.z=o.zoom||13;this.c=o.center;this.mk=[];el.classList.add('mm');
+  el.innerHTML=`<div class="mm-t"></div><div class="mm-m"></div><div class="mm-b"><button type="button" aria-label="Aproximar">+</button><button type="button" aria-label="Afastar">−</button></div><div class="mm-a">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a></div>`;
+  this.T=el.querySelector('.mm-t');this.M=el.querySelector('.mm-m');this.tiles={};
+  const [bi,bo]=el.querySelectorAll('.mm-b button');bi.onclick=e=>{e.stopPropagation();this.zoomEm(1)};bo.onclick=e=>{e.stopPropagation();this.zoomEm(-1)};
+  this.ptrs=new Map();
+  el.addEventListener('pointerdown',e=>this.down(e));el.addEventListener('pointermove',e=>this.move(e));
+  ['pointerup','pointercancel','pointerleave'].forEach(t=>el.addEventListener(t,e=>this.up(e)));
+  el.addEventListener('wheel',e=>{e.preventDefault();const n=Date.now();if(n-(this._w||0)<250)return;this._w=n;const r=el.getBoundingClientRect();this.zoomEm(e.deltaY<0?1:-1,e.clientX-r.left,e.clientY-r.top)},{passive:false});
+  this.ro=new ResizeObserver(()=>this.desenhar());this.ro.observe(el);
+ }
+ get W(){return this.el.clientWidth}get H(){return this.el.clientHeight}
+ centroPx(){return proj(this.c[0],this.c[1],this.z)}
+ paraTela(lat,lng){const [cx,cy]=this.centroPx();const [x,y]=proj(lat,lng,this.z);return [x-cx+this.W/2,y-cy+this.H/2]}
+ daTela(px,py){const [cx,cy]=this.centroPx();return unproj(cx+px-this.W/2,cy+py-this.H/2,this.z)}
+ zoomEm(d,px,py){const nz=Math.max(3,Math.min(19,this.z+d));if(nz===this.z)return;px=px??this.W/2;py=py??this.H/2;
+  const ll=this.daTela(px,py);this.z=nz;const [x,y]=proj(ll[0],ll[1],nz);this.c=unproj(x-(px-this.W/2),y-(py-this.H/2),nz);this.desenhar();this.mudou()}
+ enquadrar(pts,zmax=16){if(!pts.length)return;if(pts.length===1){this.c=[pts[0][0],pts[0][1]];this.z=Math.min(zmax,15);return this.desenhar()}
+  const la=pts.map(p=>p[0]),lo=pts.map(p=>p[1]);const b=[Math.min(...la),Math.min(...lo),Math.max(...la),Math.max(...lo)];
+  let z=zmax;for(;z>3;z--){const [x0,y0]=proj(b[2],b[1],z),[x1,y1]=proj(b[0],b[3],z);if(x1-x0<this.W*.8&&y1-y0<this.H*.6)break}
+  this.z=z;const [x0,y0]=proj(b[2],b[1],z),[x1,y1]=proj(b[0],b[3],z);this.c=unproj((x0+x1)/2,(y0+y1)/2-18,z);this.desenhar()}
+ marcadores(l){this.mk=l;this.M.innerHTML='';l.forEach((m,i)=>{const d=document.createElement('div');d.className='mm-k'+(m.arrasta?' arr':'');d.innerHTML=m.html;d.dataset.i=i;if(m.tip)d.title=m.tip;m.el=d;this.M.appendChild(d)});this.desenhar()}
+ desenhar(){const W=this.W,H=this.H;if(!W||!H)return;const [cx,cy]=this.centroPx();const x0=cx-W/2,y0=cy-H/2;const n=2**this.z;const vis={};
+  for(let tx=Math.floor(x0/256);tx<=Math.floor((x0+W)/256);tx++)for(let ty=Math.floor(y0/256);ty<=Math.floor((y0+H)/256);ty++){if(ty<0||ty>=n)continue;const k=`${this.z}/${tx}/${ty}`;vis[k]=1;let im=this.tiles[k];
+   if(!im){im=document.createElement('img');im.className='mm-i';im.alt='';im.draggable=false;im.src=TILE_URL.replace('{z}',this.z).replace('{x}',((tx%n)+n)%n).replace('{y}',ty);this.tiles[k]=im;this.T.appendChild(im)}
+   im.style.transform=`translate(${Math.round(tx*256-x0)}px,${Math.round(ty*256-y0)}px)`}
+  Object.keys(this.tiles).forEach(k=>{if(!vis[k]){this.tiles[k].remove();delete this.tiles[k]}});
+  this.mk.forEach(m=>{const [x,y]=this.paraTela(m.lat,m.lng);m.el.style.transform=`translate(${Math.round(x)}px,${Math.round(y)}px)`})}
+ down(e){if(e.target.closest('.mm-b,.mm-a'))return;const k=e.target.closest('.mm-k');
+  if(k&&this.mk[+k.dataset.i].arrasta){this.arr={m:this.mk[+k.dataset.i]};this.el.setPointerCapture(e.pointerId);e.preventDefault();return}
+  this.ptrs.set(e.pointerId,[e.clientX,e.clientY]);this.el.setPointerCapture(e.pointerId);
+  if(this.ptrs.size===1){this.ini=[e.clientX,e.clientY];this.c0=this.centroPx();this.mov=false;this.alvo=k}
+  if(this.ptrs.size===2){const [a,b]=[...this.ptrs.values()];this.d0=Math.hypot(a[0]-b[0],a[1]-b[1]);this.mov=true}}
+ move(e){if(this.arr){const r=this.el.getBoundingClientRect();const ll=this.daTela(e.clientX-r.left,e.clientY-r.top);this.arr.m.lat=ll[0];this.arr.m.lng=ll[1];this.arr.mov=true;this.desenhar();return}
+  if(!this.ptrs.has(e.pointerId))return;this.ptrs.set(e.pointerId,[e.clientX,e.clientY]);
+  if(this.ptrs.size===2){const [a,b]=[...this.ptrs.values()];const d=Math.hypot(a[0]-b[0],a[1]-b[1]);const r=this.el.getBoundingClientRect();const mx=(a[0]+b[0])/2-r.left,my=(a[1]+b[1])/2-r.top;
+   if(d/this.d0>1.5){this.zoomEm(1,mx,my);this.d0=d}else if(d/this.d0<.66){this.zoomEm(-1,mx,my);this.d0=d}return}
+  const dx=e.clientX-this.ini[0],dy=e.clientY-this.ini[1];if(!this.mov&&Math.hypot(dx,dy)<6)return;this.mov=true;
+  this.c=unproj(this.c0[0]-dx,this.c0[1]-dy,this.z);this.desenhar()}
+ up(e){if(this.arr){const m=this.arr.m,mv=this.arr.mov;this.arr=null;if(mv&&m.aoSoltar)m.aoSoltar(m.lat,m.lng);return}
+  if(!this.ptrs.has(e.pointerId))return;this.ptrs.delete(e.pointerId);if(this.ptrs.size)return;
+  if(this.mov){this.mudou();return}
+  if(e.type!=='pointerup')return;
+  if(this.alvo){const m=this.mk[+this.alvo.dataset.i];if(m&&m.aoTocar)m.aoTocar();return}
+  if(this.o.aoTocar){const r=this.el.getBoundingClientRect();this.o.aoTocar(this.daTela(e.clientX-r.left,e.clientY-r.top))}}
+ mudou(){if(this.o.aoMover)this.o.aoMover({c:this.c,z:this.z})}
+}
+const pinoSvg=(cor,txt,estrela)=>`<svg width="30" height="40" viewBox="0 0 30 40" style="display:block"><path d="M15 39C6 27 2 21 2 14a13 13 0 0 1 26 0c0 7-4 13-13 25z" fill="${cor}" stroke="#fff" stroke-width="2"/>${estrela?'<path d="M15 6.5l2.3 4.7 5.2.8-3.8 3.6.9 5.1-4.6-2.4-4.6 2.4.9-5.1-3.8-3.6 5.2-.8z" fill="#fff"/>':txt?`<text x="15" y="18.5" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="system-ui,sans-serif">${txt}</text>`:'<circle cx="15" cy="14" r="5" fill="#fff"/>'}</svg>`;
+const GV=[-18.8511,-41.9494];
+function centroPadrao(){const us=uphsAtivas().filter(u=>u.lat!=null);if(us.length)return [us.reduce((a,u)=>a+u.lat,0)/us.length,us.reduce((a,u)=>a+u.lng,0)/us.length];return GV}
+// mapa geral (agenda > mapa)
+function mapaSvg(pts){return `<div class="mmap" id="mapaReal"></div>`}
+function locSvg(u){return `<div class="mmap sm" id="locMapa" data-uph="${u.id}"></div>`}
+function montarMapas(){
+ const el=document.getElementById('mapaReal');
+ if(el){const pts=pontosMapa();const cor={igr:'#0f5132',cong:'#b5832a',atv:'#2b6cb0',soc:'#5f6b66'};
+  const m=new MiniMapa(el,{center:centroPadrao(),zoom:13,aoMover:v=>{ctx.mapView=v;ctx.mapViewCid=ctx.mapCidade}});
+  const fp=ctx.mapCidade&&pts.some(p=>p.cid===ctx.mapCidade)?pts.filter(p=>p.cid===ctx.mapCidade):pts;
+  if(ctx.mapView&&ctx.mapViewCid===ctx.mapCidade){m.c=ctx.mapView.c;m.z=ctx.mapView.z}else{requestAnimationFrame(()=>{m.enquadrar(fp.map(p=>[p.lat,p.lng]));ctx.mapView={c:m.c,z:m.z};ctx.mapViewCid=ctx.mapCidade})}
+  const ord={soc:0,igr:1,atv:2,cong:3};
+  m.marcadores(pts.slice().sort((a,b)=>ord[a.t]-ord[b.t]).map(p=>{const em=(ctx.rota||[]).indexOf(p.id);const c=p.t==='soc'&&p.af?'#b42318':cor[p.t];const sel=ctx.mapSel&&ctx.mapSel.t===p.t&&ctx.mapSel.id===p.id;
+   return {lat:p.lat,lng:p.lng,tip:p.nome,html:`<div class="mm-pin${sel?' sel':''}">${pinoSvg(c,p.t==='soc'&&em>=0?em+1:'',p.t==='cong')}</div>`,aoTocar:()=>A.mapSel(p.t+'|'+p.id)}}));
+ }
+ const el2=document.getElementById('locMapa');
+ if(el2){const u=uph(el2.dataset.uph);const ed=!!document.querySelector('[data-a=geoBuscar]');const has=u.lat!=null;
+  const m=window._locMap=new MiniMapa(el2,{center:has?[u.lat,u.lng]:centroPadrao(),zoom:has?17:13,aoMover:v=>{ctx.locView={...v,id:u.id}},
+   aoTocar:ed?ll=>moverIgreja(u,ll):null});
+  if(ctx.locView&&ctx.locView.id===u.id){m.c=ctx.locView.c;m.z=ctx.locView.z}
+  m.marcadores(has?[{lat:u.lat,lng:u.lng,arrasta:ed,tip:'IP '+u.igreja,html:`<div class="mm-pin">${pinoSvg(u.locConf?'#0f5132':'#b5832a')}</div>`,aoSoltar:(la,lo)=>moverIgreja(u,[la,lo])}]:[]);
+ }
+}
+function moverIgreja(u,ll){const m=window._locMap;if(m)ctx.locView={c:m.c,z:m.z,id:u.id};u.lat=ll[0];u.lng=ll[1];u.locConf=false;save();render();toast('Posição ajustada. Toque em “Confirmar localização” quando estiver certa.')}
+
+const _renderBase=render;render=function(){_renderBase();try{montarMapas()}catch(e){console.error(e)}};
 
 boot();
 </script>
