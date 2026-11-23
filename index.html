@@ -1770,7 +1770,7 @@ const URLS={};    // caminho -> URL assinada
 const pth=v=>v?(PATHS[v]||(String(v).startsWith('data:')?v:v)):null;
 function dataUrlBlob(d){const [h,b]=d.split(',');const ct=(h.match(/data:([^;]+)/)||[])[1]||'application/octet-stream';const bin=atob(b);const u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return new Blob([u],{type:ct})}
 const extDe=d=>/^data:application\/pdf/.test(d)?'pdf':/^data:image\/png/.test(d)?'png':'jpg';
-async function enviarArquivo(bucket,caminho,dataUrl){const b=dataUrlBlob(dataUrl);await sbFetch(`/storage/v1/object/${bucket}/${caminho}`,{method:'POST',body:b,headers:{'Content-Type':b.type,'x-upsert':'true'}});return caminho}
+async function enviarArquivo(bucket,caminho,dataUrl){const b=dataUrlBlob(dataUrl);await sbFetch(`/storage/v1/object/${bucket}/${caminho}`,{method:'POST',body:b,headers:{'Content-Type':b.type}});return caminho}
 async function assinarUrls(bucket,paths){paths=[...new Set(paths.filter(p=>p&&!URLS[bucket+':'+p]))];if(!paths.length)return;
  for(let i=0;i<paths.length;i+=200){const lote=paths.slice(i,i+200);try{const r=await sbFetch(`/storage/v1/object/sign/${bucket}`,{method:'POST',body:{expiresIn:60*60*24*6,paths:lote}});(r||[]).forEach(x=>{if(x.signedURL){const u=(x.signedURL.startsWith('http')?'':SB_URL+'/storage/v1')+x.signedURL;URLS[bucket+':'+x.path]=u;PATHS[u]=x.path}})}catch(e){console.warn(e)}}}
 const urlDe=(bucket,p)=>p?(URLS[bucket+':'+p]||null):null;
