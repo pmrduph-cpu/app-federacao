@@ -443,7 +443,7 @@ function can(act,uid_){
   case 'metas':return isFed;
   case 'editUph':return isFed||(ativa&&s.uphId===uid_&&EDIT_CARGOS.includes(s.cargo));
   case 'approveSocio':return ativa&&s.uphId===uid_&&['Presidente','Vice-presidente'].includes(s.cargo);
-  case 'setCargo':return ativa&&s.uphId===uid_&&s.cargo==='Presidente';
+  case 'setCargo':return isFed||(ativa&&s.uphId===uid_&&s.cargo==='Presidente');
   case 'finance':case 'finView':return uid_==='fed'?!!fr:(isFed||fr==='Tesoureiro'||(ativa&&s.uphId===uid_&&s.cargo!=='Sócio'));
   case 'pcView':return ativa&&s.uphId===uid_&&['Tesoureiro','Presidente','Vice-presidente'].includes(s.cargo);
   case 'finEdit':return uid_==='fed'?fr==='Tesoureiro':(ativa&&s.uphId===uid_&&s.cargo==='Tesoureiro');
