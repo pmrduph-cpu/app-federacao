@@ -1458,9 +1458,9 @@ function marcarLida(id){const s=meS();S.lidas=S.lidas||{};const a=S.lidas[s.id]=
 function quando(d){const n=diffDays(TODAY,d.slice(0,10));return n===0?'hoje':n===1?'ontem':n<7&&n>0?`há ${n} dias`:br(d.slice(0,10))}
 const ICN={lembrete:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',nova:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg>',comunicado:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10v4h3l6 4V6L7 10z"/><path d="M17 9a4 4 0 0 1 0 6"/></svg>',pend:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'};
 function notifView(){const s=meS();const ns=notifsDe(s);const L=lidasDe(s);const nl=ns.filter(n=>!L.has(n.id)).length;
- return `<div class="between"><h1>Notificações</h1>${nl?'<button class="btn sm" data-a="lerTodas">Marcar todas como lidas</button>':''}</div><p class="sub">Lembretes de atividades, comunicados e pendências. ${nl?`<b>${nl}</b> não lida(s).`:'Tudo lido.'}</p>
- <div class="card"><div class="list">${ns.map(n=>`<div class="li nt ${L.has(n.id)?'':'novo'}" data-a="abrirNotif" data-id="${esc(n.id)}"><span class="ni ni-${n.tipo}">${ICN[n.tipo]||ICN.pend}</span><div class="grow"><div class="t">${esc(n.titulo)}</div><div class="m">${esc(n.texto||'')}</div><div class="m" style="font-size:12px">${quando(n.em)}</div></div>${n.wa?`<button class="btn sm" data-a="waNotif" data-id="${esc(n.id)}">WhatsApp</button>`:''}</div>`).join('')||'<div class="empty">Nenhuma notificação.</div>'}</div></div>
- <p class="hint">Na versão instalada, estas notificações também chegam na tela do celular, mesmo com o app fechado (Android e iPhone com o app adicionado à tela inicial).</p>`}
+ return `<div class="between"><h1>Notificações</h1><div class="row" style="gap:6px">${nl?'<button class="btn sm" data-a="lerTodas">Marcar todas como lidas</button>':''}${ns.some(n=>n.tipo!=='pend')?'<button class="btn sm" data-a="limparNotifs">Limpar lista</button>':''}</div></div><p class="sub">Lembretes de atividades, comunicados e pendências. ${nl?`<b>${nl}</b> não lida(s).`:'Tudo lido.'}</p>
+ <div class="card"><div class="list">${ns.map(n=>`<div class="li nt ${L.has(n.id)?'':'novo'}" data-a="abrirNotif" data-id="${esc(n.id)}"><span class="ni ni-${n.tipo}">${ICN[n.tipo]||ICN.pend}</span><div class="grow"><div class="t">${esc(n.titulo)}</div><div class="m">${esc(n.texto||'')}</div><div class="m" style="font-size:12px">${quando(n.em)}</div></div>${n.wa?`<button class="btn sm" data-a="waNotif" data-id="${esc(n.id)}">WhatsApp</button>`:''}${n.tipo!=='pend'?`<button class="btn sm" data-a="excluirNotif" data-id="${esc(n.id)}" aria-label="Excluir notificação" title="Excluir" style="font-size:18px;line-height:1;padding:4px 10px">×</button>`:''}</div>`).join('')||'<div class="empty">Nenhuma notificação.</div>'}</div></div>
+ <p class="hint">Toque em × para tirar uma notificação da lista. Pendências (indicações e assinaturas) saem sozinhas quando resolvidas. Para receber na tela do celular, ative em Perfil → Avisos.</p>`}
 function notificar(para,tipo,titulo,texto,extra={}){S.notifs=S.notifs||[];S.notifs.push({id:'n'+uid(),para,tipo,titulo,texto,em:TODAY,...extra});if(S.notifs.length>400)S.notifs.splice(0,S.notifs.length-400)}
 
 /* ============ MODAL ============ */
@@ -1897,7 +1897,8 @@ function linhas(S){
 /* ---------- sincronização: diferenças -> servidor ---------- */
 let SYNC_P=Promise.resolve();const RELER=new Set();let SYNC_PEND=false;let SALVANDO=0;
 function indicadorSync(){const el=document.getElementById('syncInd');if(el)el.className=SALVANDO?'on':''}
-function agendarSync(){if(!CARREGADO||!SESS)return;if(SYNC_PEND)return;SYNC_PEND=true;SALVANDO++;indicadorSync();
+let SYNC_GER=0;
+function agendarSync(){if(!CARREGADO||!SESS)return;SYNC_GER++;if(SYNC_PEND)return;SYNC_PEND=true;SALVANDO++;indicadorSync();
  SYNC_P=SYNC_P.then(()=>new Promise(r=>setTimeout(r,0))).then(async()=>{SYNC_PEND=false;try{await sincronizar()}catch(e){console.error(e);toast(msgPt(e.message));await recarregar(TABELAS,true)}finally{SALVANDO--;indicadorSync()}})}
 async function subirArquivos(){
  const novos=[];
@@ -2173,10 +2174,21 @@ const ultimaNotif=()=>(R.notificacoes||[]).reduce((m,n)=>n.em>m?n.em:m,'');
 let _verif=false;
 async function verificarNovidades(){if(_verif||!CARREGADO||!SESS||SALVANDO||!me||!me.socioId)return;_verif=true;
  try{const r=await sbFetch(`/rest/v1/notificacoes?select=id&em=gt.${encodeURIComponent(ultimaNotif()||'1970-01-01T00:00:00Z')}&limit=1`);
-  if(r&&r.length)await recarregar(['notificacoes','atividades','convites','documentos','atas','metas','fed_cargos','socios','socios_privado'])}catch(e){}finally{_verif=false}}
+  if(r&&r.length){const ger=SYNC_GER;await carregarTabelas(['notificacoes','atividades','convites','documentos','atas','metas','fed_cargos','socios','socios_privado']);
+   if(SALVANDO||ger!==SYNC_GER)return;const novo=await montarS();if(SALVANDO||ger!==SYNC_GER)return;const meAnt=JSON.stringify(me);aplicarS(novo);
+   const modal=!document.getElementById('modal').classList.contains('hidden');if(!modal||JSON.stringify(me)!==meAnt)render()}}catch(e){}finally{_verif=false}}
 setInterval(()=>{if(document.visibilityState==='visible')verificarNovidades()},60000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')verificarNovidades()});
 if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{if(e.data==='novidade')verificarNovidades()});
+
+/* ---------- excluir notificações da lista (fica guardado por pessoa) ---------- */
+const _notifsDeBase=notifsDe;
+notifsDe=function(s){const l=_notifsDeBase(s);if(!s)return l;const L=lidasDe(s);return l.filter(n=>!L.has('x:'+n.id))};
+function ocultarNotif(s,id){S.lidas=S.lidas||{};const a=S.lidas[s.id]=S.lidas[s.id]||[];if(!a.includes(id))a.push(id);if(!a.includes('x:'+id))a.push('x:'+id)}
+Object.assign(A,{
+ excluirNotif:id=>{const s=meS();ocultarNotif(s,id);save();render()},
+ limparNotifs:(id,el)=>{if(el.dataset.conf!=='1'){el.dataset.conf='1';el.textContent='Toque de novo para limpar';return}const s=meS();notifsDe(s).filter(n=>n.tipo!=='pend').forEach(n=>ocultarNotif(s,n.id));save();render();toast('Notificações removidas da lista.')}
+});
 /* ============ MAPA REAL (OpenStreetMap) — componente próprio, sem bibliotecas ============ */
 const TILE_URL='https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const PI=Math.PI;
