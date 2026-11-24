@@ -1443,7 +1443,7 @@ function waComposer(kind,ref){const t=textoWa(kind,ref);const a=kind!=='comunica
 function waAtualizarLinks(){const t=(document.getElementById('waTxt')||{}).value||'';const g=document.getElementById('waGrupo');if(g)g.href='https://wa.me/?text='+encodeURIComponent(t);const p=document.getElementById('waPes');const sel=document.getElementById('waPessoa');if(p&&sel)p.href=`https://wa.me/${telWa((socio(sel.value)||{}).tel)}?text=${encodeURIComponent(t)}`}
 function notifsDe(s){if(!s)return [];const out=[];const u=s.uphId;
  if(s.prefs?.app!==false)S.atividades.filter(a=>a.tipo!=='participacao'&&(a.tipo==='federacao'||ups(a).includes(u)||(a.interessados||[]).includes(u))).filter(a=>a.data>=TODAY).forEach(a=>envios(a).filter(e=>e.data<=TODAY).slice(-1).forEach(e=>{const dd=diffDays(TODAY,e.data);if(dd>=0&&dd<=21)out.push({id:`lem:${a.id}:${e.d}`,tipo:'lembrete',em:e.data,titulo:e.d?`Faltam ${e.d} dias: ${a.titulo}`:`É hoje: ${a.titulo}`,texto:`${br(a.data)}${a.hora?' às '+a.hora:''} · ${a.local||''}`,a:'verAtv',ref:a.id,wa:['lembrete',a.id]})}));
- (S.notifs||[]).forEach(n=>{if(n.para==='all'||n.para===s.id||n.para==='uph:'+u||(n.para==='fedAny'&&fedRole(s.id)))out.push(n)});
+ (S.notifs||[]).forEach(n=>{if(n.tipo==='convite')return;if(n.para==='all'||n.para===s.id||n.para==='socio:'+s.id||n.para==='uph:'+u||(n.para==='fedAny'&&fedRole(s.id)))out.push(n)});
  S.convites.filter(c=>c.status==='pendente'&&c.socioId===s.id).forEach(c=>out.push({id:'conv:'+c.id,tipo:'pend',em:c.em,titulo:`Você foi indicado para ${c.cargo}`,texto:'Aceite ou recuse no Início.',a:'nav',ref:'home'}));
  (S.docs||[]).filter(d=>papeisDe(d.tipo).some(p=>minhaVez(d,p))).forEach(d=>out.push({id:'doc:'+d.id,tipo:'pend',em:d.emitidoEm.slice(0,10),titulo:'Documento aguardando sua assinatura',texto:d.titulo,a:'verDoc',ref:d.id}));
  S.atas.filter(a=>a.status==='emitida'&&!(a.assinaturas||[]).some(x=>x.papel==='pres')&&can('assinaPres',a.escopo)).forEach(a=>out.push({id:'ata:'+a.id,tipo:'pend',em:(a.emitidaEm||a.data).slice(0,10),titulo:'Ata aguardando sua assinatura',texto:`Ata nº ${a.numero} — ${a.tipo}`,a:'abrirAta',ref:a.id}));
@@ -2103,7 +2103,7 @@ async function boot(){S=sPadrao();initCaps();
  if(SESS)await iniciarSessao();else{render();carregarFedPublica()}}
 function pedidosUphMaster(){const pend=S.uphs.filter(u=>u.status==='pendente');if(!pend.length)return `<div class="card"><h2>Pedidos de cadastro de UPH</h2><p class="sub" style="margin:0">Nenhum pedido aguardando.</p></div>`;
  return `<div class="card"><h2>Pedidos de cadastro de UPH</h2><p class="sub">Enquanto a Federação não tiver Presidente e Secretário Executivo no app, a conta master aprova os pedidos.</p>${pend.map(u=>{const p=holder(u.id,'Presidente');return `<div class="li" style="cursor:default"><div class="grow"><div class="t">UPH da IP ${esc(u.igreja)}</div><div class="m">${esc(endUph(u))}<br>Solicitante: ${esc(p?.nome||'')} · pedido em ${br(u.solicitadaEm)}<span class="mail">${esc(p?.email||'')}</span></div></div><button class="btn sm ok" data-a="aprovarUph" data-id="${u.id}">Aprovar</button><button class="btn sm bad" data-a="recusarUph" data-id="${u.id}">Recusar</button></div>`}).join('')}</div>`}
-function appCard(){return `<div class="card"><h2>Aplicativo</h2><p class="sub" style="margin-bottom:10px">Conectado como ${esc(sessEmail())}.</p><div class="row"><button class="btn sm" data-a="atualizar">Atualizar dados</button><button class="btn sm" data-a="comoInstalar">Como instalar no celular</button></div></div>`}
+function appCard(){setTimeout(atualizarPushBox,0);return `<div class="card"><h2>Aplicativo</h2><p class="sub" style="margin-bottom:10px">Conectado como ${esc(sessEmail())}.</p>${me&&me.socioId?'<h3 style="margin:4px 0 6px">Avisos na tela do celular</h3><p class="hint" style="margin-top:0">Lembretes de atividades, comunicados e indicações chegam mesmo com o app fechado.</p><div id="pushBox" style="margin-bottom:14px"></div>':''}<div class="row"><button class="btn sm" data-a="atualizar">Atualizar dados</button><button class="btn sm" data-a="comoInstalar">Como instalar no celular</button></div></div>`}
 
 // identificação da Federação na tela de entrada (dados públicos lidos antes do login)
 function fedTitulo(mob){const f=S.fed||{};const linha2=[f.sinodal,f.presbiterio&&!/presbit/i.test(f.nome||'')?'Presbitério '+f.presbiterio:''].filter(Boolean).join(' · ');const loc=[f.cidade,f.uf].filter(Boolean).join('-');
@@ -2141,6 +2141,32 @@ Object.assign(A,{
 function desligadosCard(u){if(!(can('approveSocio',u.id)||can('lancaPor',u.id)||can('fed')))return '';const l=sociosDe(u.id,'inativo').sort((a,b)=>(b.desligadoEm||'').localeCompare(a.desligadoEm||''));if(!l.length)return '';
  return `<details class="card"><summary style="cursor:pointer"><b>Desligados (${l.length})</b></summary><div class="list" style="margin-top:8px">${l.map(p=>`<div class="li" data-a="verSocio" data-id="${p.id}">${avatar(p,36)}<div class="grow"><div class="t">${esc(p.nome)}</div><div class="m">${br(p.desligadoEm)}${p.desligamento?' · '+esc(p.desligamento):''}</div></div></div>`).join('')}</div></details>`}
 function inativoView(u){return `<div class="card" style="text-align:center;padding:28px 18px"><div class="badge" style="margin-bottom:10px">Cadastro inativo</div><h2>Seu cadastro na UPH ${esc(u?u.igreja:'')} está inativo.</h2><p class="sub">Se isso não estiver certo, procure a presidência da sua UPH.</p><button class="btn" data-a="logout">Sair</button></div>`}
+
+/* ---------- avisos na tela do celular (Web Push, gratuito) ---------- */
+const VAPID_PUB='BIV-1HG1s2HXJVp-B3UW2dOxzo2bnnG7s3oCbi8fxFnbV8dMqWfVMjvx_ZZX6QBkgwBV98qAPsL99O8kuj3ZbdE';
+const ehIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent);
+const instalado=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const pushSuportado=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+function b64u8(b){const p='='.repeat((4-b.length%4)%4);const r=atob((b+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from([...r].map(c=>c.charCodeAt(0)))}
+async function minhaInscricao(){try{const r=await navigator.serviceWorker.getRegistration();return r?await r.pushManager.getSubscription():null}catch(e){return null}}
+async function pushEstado(){if(!pushSuportado())return ehIOS()&&!instalado()?'ios':'sem';if(Notification.permission==='denied')return 'negado';return (await minhaInscricao())?'on':'off'}
+async function atualizarPushBox(){const el=document.getElementById('pushBox');if(!el)return;const st=await pushEstado();
+ el.innerHTML={on:'<span class="badge ok">Ativados neste aparelho</span> <button class="btn sm" data-a="desativarPush">Desativar</button>',
+  off:'<button class="btn sm pri" data-a="ativarPush">Ativar avisos neste aparelho</button>',
+  negado:'<span class="hint">Os avisos foram bloqueados neste aparelho. Libere nas configurações do navegador (Notificações) e volte aqui.</span>',
+  ios:'<span class="hint">No iPhone, primeiro instale o app na tela de início (Safari → Compartilhar → Adicionar à Tela de Início) e abra por ele.</span>',
+  sem:'<span class="hint">Este navegador não recebe avisos. No Android use o Chrome; no iPhone, o app instalado na tela de início.</span>'}[st]}
+async function sairDoPush(){try{const s=await minhaInscricao();if(s){const ep=s.endpoint;await s.unsubscribe();await rest.del('push_assinaturas','endpoint=eq.'+encodeURIComponent(ep))}}catch(e){}}
+Object.assign(A,{
+ ativarPush:async(id,el)=>{if(!meS()||meS().status!=='ativo')return toast('Disponível após a aprovação do seu cadastro.');ocupado(el,true,'Ativando…');
+  try{const p=await Notification.requestPermission();if(p!=='granted'){ocupado(el,false);await atualizarPushBox();return toast('Permissão de avisos não concedida.')}
+   const reg=await navigator.serviceWorker.ready;let sub=await reg.pushManager.getSubscription();if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u8(VAPID_PUB)});
+   const j=sub.toJSON();await rest.ins('push_assinaturas',{socio_id:meS().id,endpoint:j.endpoint,chaves:j.keys},'?on_conflict=endpoint','resolution=ignore-duplicates,return=minimal');
+   toast('Pronto! Os avisos vão chegar na tela deste aparelho.')}catch(e){console.error(e);toast(msgPt(e.message)||'Não foi possível ativar os avisos.')}
+  await atualizarPushBox()},
+ desativarPush:async()=>{await sairDoPush();await atualizarPushBox();toast('Avisos desativados neste aparelho.')}
+});
+const _logoutBase=A.logout;A.logout=async(...a)=>{await sairDoPush();return _logoutBase(...a)};
 /* ============ MAPA REAL (OpenStreetMap) — componente próprio, sem bibliotecas ============ */
 const TILE_URL='https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const PI=Math.PI;
