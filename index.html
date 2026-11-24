@@ -1996,7 +1996,7 @@ async function sincronizar(){
  const cob=novas('cobrancas');if(cob.length){await rest.ins('cobrancas',cob);t('cobrancas')}
  // notificações, lidas e histórico
  const nts=novas('notificacoes');if(nts.length&&eu){await rest.ins('notificacoes',nts);t('notificacoes')}
- const lid=novas('notif_lidas');if(lid.length){await rest.ins('notif_lidas',lid,'?on_conflict=socio_id,chave','resolution=ignore-duplicates,return=minimal')}
+ const lid=novas('notif_lidas');if(lid.length){await rest.ins('notif_lidas',lid,'?on_conflict=socio_id,chave','resolution=ignore-duplicates,return=minimal');t('notif_lidas')}
  const lg=novas('auditoria');if(lg.length){try{await rest.ins('auditoria',lg.map(x=>({texto:x.texto,socio_id:eu?eu.id:null})))}catch(e){}t('auditoria')}
  // relê do servidor o que mudou (o banco é quem manda)
  if(toc.has('socios'))toc.add('socios_privado');toc.forEach(x=>RELER.add(x));
@@ -2175,7 +2175,7 @@ const ultimaNotif=()=>(R.notificacoes||[]).reduce((m,n)=>n.em>m?n.em:m,'');
 let _verif=false;
 async function verificarNovidades(){if(_verif||!CARREGADO||!SESS||SALVANDO||!me||!me.socioId)return;_verif=true;
  try{const r=await sbFetch(`/rest/v1/notificacoes?select=id&em=gt.${encodeURIComponent(ultimaNotif()||'1970-01-01T00:00:00Z')}&limit=1`);
-  if(r&&r.length){const ger=SYNC_GER;await carregarTabelas(['notificacoes','atividades','convites','documentos','atas','metas','fed_cargos','socios','socios_privado']);
+  if(r&&r.length){const ger=SYNC_GER;await carregarTabelas(['notificacoes','notif_lidas','atividades','convites','documentos','atas','metas','fed_cargos','socios','socios_privado']);
    if(SALVANDO||ger!==SYNC_GER)return;const novo=await montarS();if(SALVANDO||ger!==SYNC_GER)return;const meAnt=JSON.stringify(me);aplicarS(novo);
    const modal=!document.getElementById('modal').classList.contains('hidden');if(!modal||JSON.stringify(me)!==meAnt)render()}}catch(e){}finally{_verif=false}}
 setInterval(()=>{if(document.visibilityState==='visible')verificarNovidades()},60000);
@@ -2194,7 +2194,7 @@ Object.assign(A,{
 // um registro por aparelho: ao (re)ativar, apaga inscrições antigas deste mesmo aparelho
 async function registrarAparelho(sub){const j=sub.toJSON();const ua=navigator.userAgent;const eu=meS();if(!eu)return;
  try{const minhas=await sbFetch(`/rest/v1/push_assinaturas?select=id,endpoint,chaves&socio_id=eq.${eu.id}`);
-  for(const x of minhas||[])if(x.endpoint!==j.endpoint&&x.chaves&&x.chaves.ua===ua)await rest.del('push_assinaturas','id=eq.'+x.id);
+  for(const x of minhas||[])if(x.endpoint!==j.endpoint&&(!x.chaves||!x.chaves.ua||x.chaves.ua===ua))await rest.del('push_assinaturas','id=eq.'+x.id);
   if(!(minhas||[]).some(x=>x.endpoint===j.endpoint))await rest.ins('push_assinaturas',{socio_id:eu.id,endpoint:j.endpoint,chaves:{...j.keys,ua}},'?on_conflict=endpoint','resolution=ignore-duplicates,return=minimal')}catch(e){console.warn(e)}}
 async function conferirAparelho(){if(!pushSuportado()||Notification.permission!=='granted'||!me||!me.socioId)return;const s=await minhaInscricao();if(s)registrarAparelho(s)}
 /* ============ MAPA REAL (OpenStreetMap) — componente próprio, sem bibliotecas ============ */
