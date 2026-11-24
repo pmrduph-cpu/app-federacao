@@ -1,0 +1,32 @@
+# Backup semanal do banco, criptografado (só abre com o segredo BACKUP_SENHA)
+name: Backup semanal do banco
+on:
+  schedule:
+    - cron: '41 9 * * 0'
+  workflow_dispatch:
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Instalar cliente PostgreSQL 17
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-common
+          yes | sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh
+          sudo apt-get install -y -qq postgresql-client-17
+      - name: Gerar backup criptografado
+        env:
+          DB: ${{ secrets.SUPABASE_DB_URL }}
+          SENHA: ${{ secrets.BACKUP_SENHA }}
+        run: |
+          set -euo pipefail
+          D=$(date +%F)
+          /usr/lib/postgresql/17/bin/pg_dump "$DB" --no-owner --no-privileges -n public -n auth -n storage -F c -f backup.dump
+          gpg --batch --yes --pinentry-mode loopback --passphrase "$SENHA" --symmetric --cipher-algo AES256 -o "backup-$D.dump.gpg" backup.dump
+          rm backup.dump
+          ls -lh backup-*.gpg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: backup-${{ github.run_number }}
+          path: backup-*.dump.gpg
+          retention-days: 90
