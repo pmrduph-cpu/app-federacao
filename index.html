@@ -2043,7 +2043,7 @@ async function iniciarSessao(){CARREGADO=false;render();
  try{let vinc=null;try{vinc=await rest.rpc('vincular_conta')}catch(e){if(e.status===401)throw e}
   await carregarTudo();guardarFedCache();
   if(vinc==='vinculado')setTimeout(()=>toast('Encontramos seu cadastro feito pela diretoria. A presidência da UPH vai confirmar o seu acesso.'),300);
-  view='home';ctx={uphTab:'diretoria'};render();scrollTo(0,0)}
+  view='home';ctx={uphTab:'diretoria'};render();scrollTo(0,0);setTimeout(conferirAparelho,1500)}
  catch(e){console.error(e);if(!SESS){render();toast(msgPt(e.message));return}app.innerHTML=erroView(msgPt(e.message))}}
 
 function ocupado(el,on,txt){if(!el)return;if(on){el.dataset.t=el.textContent;el.disabled=true;el.textContent=txt||'Aguarde…'}else{el.disabled=false;if(el.dataset.t)el.textContent=el.dataset.t}}
@@ -2108,11 +2108,12 @@ function appCard(){setTimeout(atualizarPushBox,0);return `<div class="card"><h2>
 
 // identificação da Federação na tela de entrada (dados públicos lidos antes do login)
 function fedTitulo(mob){const f=S.fed||{};const linha2=[f.sinodal,f.presbiterio&&!/presbit/i.test(f.nome||'')?'Presbitério '+f.presbiterio:''].filter(Boolean).join(' · ');const loc=[f.cidade,f.uf].filter(Boolean).join('-');
- return `<h1>${esc(f.sigla||'Federação de UPHs')}</h1><p${mob?' class="sub"':''}>${esc(f.nome||'')}${linha2?`<br><small>${esc(linha2)}</small>`:''}${loc?`<br><small>${esc(loc)}</small>`:''}</p>`}
+ return `<div class="fedtit" data-mob="${mob?1:''}" style="display:contents"><h1>${esc(f.sigla||'Federação de UPHs')}</h1><p${mob?' class="sub"':''}>${esc(f.nome||'')}${linha2?`<br><small>${esc(linha2)}</small>`:''}${loc?`<br><small>${esc(loc)}</small>`:''}</p></div>`}
 async function carregarFedPublica(){try{const r=await sbFetch('/rest/v1/federacao?select=nome,sigla,sinodal,presbiterio,cidade,uf,logo_ipb,logo_uph&id=eq.1',{auth:false});const f=r&&r[0];if(!f)return;
  const lI=f.logo_ipb?await logoDataUrl(f.logo_ipb):null,lU=f.logo_uph?await logoDataUrl(f.logo_uph):null;
  const antes=JSON.stringify(S.fed);Object.assign(S.fed,{nome:f.nome,sigla:f.sigla,sinodal:f.sinodal,presbiterio:f.presbiterio,cidade:f.cidade,uf:f.uf,logoIpb:lI,logoUph:lU});guardarFedCache();
- if(SESS||JSON.stringify(S.fed)===antes)return;const fm=document.getElementById('fLoginEmail');const em=fm?fm.em.value:'',pw=fm?fm.pw.value:'';render();const f2=document.getElementById('fLoginEmail');if(f2){f2.em.value=em;f2.pw.value=pw}}catch(e){}}
+ if(SESS||JSON.stringify(S.fed)===antes)return;const fm=document.getElementById('fLoginEmail');const ocupado_=fm&&(fm.em.value||fm.pw.value||fm.contains(document.activeElement));
+ if(!ocupado_)return render();document.querySelectorAll('.fedtit').forEach(e=>{const t=document.createElement('div');t.innerHTML=fedTitulo(!!e.dataset.mob);e.replaceWith(t.firstElementChild)})}catch(e){}}
 
 /* ---------- desligar, reativar e transferir sócios ---------- */
 const MOTIVOS_DESL=['Mudança de igreja','Falecimento','A pedido do sócio','Afastamento prolongado','Outro'];
@@ -2162,7 +2163,7 @@ Object.assign(A,{
  ativarPush:async(id,el)=>{if(!meS()||meS().status!=='ativo')return toast('Disponível após a aprovação do seu cadastro.');ocupado(el,true,'Ativando…');
   try{const p=await Notification.requestPermission();if(p!=='granted'){ocupado(el,false);await atualizarPushBox();return toast('Permissão de avisos não concedida.')}
    const reg=await navigator.serviceWorker.ready;let sub=await reg.pushManager.getSubscription();if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u8(VAPID_PUB)});
-   const j=sub.toJSON();await rest.ins('push_assinaturas',{socio_id:meS().id,endpoint:j.endpoint,chaves:j.keys},'?on_conflict=endpoint','resolution=ignore-duplicates,return=minimal');
+   await registrarAparelho(sub);
    toast('Pronto! Os avisos vão chegar na tela deste aparelho.')}catch(e){console.error(e);toast(msgPt(e.message)||'Não foi possível ativar os avisos.')}
   await atualizarPushBox()},
  desativarPush:async()=>{await sairDoPush();await atualizarPushBox();toast('Avisos desativados neste aparelho.')}
@@ -2189,6 +2190,13 @@ Object.assign(A,{
  excluirNotif:id=>{const s=meS();ocultarNotif(s,id);save();render()},
  limparNotifs:(id,el)=>{if(el.dataset.conf!=='1'){el.dataset.conf='1';el.textContent='Toque de novo para limpar';return}const s=meS();notifsDe(s).filter(n=>n.tipo!=='pend').forEach(n=>ocultarNotif(s,n.id));save();render();toast('Notificações removidas da lista.')}
 });
+
+// um registro por aparelho: ao (re)ativar, apaga inscrições antigas deste mesmo aparelho
+async function registrarAparelho(sub){const j=sub.toJSON();const ua=navigator.userAgent;const eu=meS();if(!eu)return;
+ try{const minhas=await sbFetch(`/rest/v1/push_assinaturas?select=id,endpoint,chaves&socio_id=eq.${eu.id}`);
+  for(const x of minhas||[])if(x.endpoint!==j.endpoint&&x.chaves&&x.chaves.ua===ua)await rest.del('push_assinaturas','id=eq.'+x.id);
+  if(!(minhas||[]).some(x=>x.endpoint===j.endpoint))await rest.ins('push_assinaturas',{socio_id:eu.id,endpoint:j.endpoint,chaves:{...j.keys,ua}},'?on_conflict=endpoint','resolution=ignore-duplicates,return=minimal')}catch(e){console.warn(e)}}
+async function conferirAparelho(){if(!pushSuportado()||Notification.permission!=='granted'||!me||!me.socioId)return;const s=await minhaInscricao();if(s)registrarAparelho(s)}
 /* ============ MAPA REAL (OpenStreetMap) — componente próprio, sem bibliotecas ============ */
 const TILE_URL='https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const PI=Math.PI;
