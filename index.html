@@ -2167,6 +2167,16 @@ Object.assign(A,{
  desativarPush:async()=>{await sairDoPush();await atualizarPushBox();toast('Avisos desativados neste aparelho.')}
 });
 const _logoutBase=A.logout;A.logout=async(...a)=>{await sairDoPush();return _logoutBase(...a)};
+
+/* ---------- novidades sem precisar tocar em "Atualizar" ---------- */
+const ultimaNotif=()=>(R.notificacoes||[]).reduce((m,n)=>n.em>m?n.em:m,'');
+let _verif=false;
+async function verificarNovidades(){if(_verif||!CARREGADO||!SESS||SALVANDO||!me||!me.socioId)return;_verif=true;
+ try{const r=await sbFetch(`/rest/v1/notificacoes?select=id&em=gt.${encodeURIComponent(ultimaNotif()||'1970-01-01T00:00:00Z')}&limit=1`);
+  if(r&&r.length)await recarregar(['notificacoes','atividades','convites','documentos','atas','metas','fed_cargos','socios','socios_privado'])}catch(e){}finally{_verif=false}}
+setInterval(()=>{if(document.visibilityState==='visible')verificarNovidades()},60000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')verificarNovidades()});
+if('serviceWorker' in navigator)navigator.serviceWorker.addEventListener('message',e=>{if(e.data==='novidade')verificarNovidades()});
 /* ============ MAPA REAL (OpenStreetMap) — componente próprio, sem bibliotecas ============ */
 const TILE_URL='https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 const PI=Math.PI;
